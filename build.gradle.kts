@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 version = "1.0-SNAPSHOT"
+group = "com.dgkrajnik"
 
 buildscript {
     var kotlin_version: String by extra
