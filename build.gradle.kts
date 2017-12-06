@@ -40,6 +40,9 @@ dependencies {
     compile("com.fasterxml.jackson.module:jackson-module-kotlin")
     compile("javax.inject:javax.inject:1")
     compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework:spring-jdbc")
+    compile("org.springframework.security.oauth:spring-security-oauth2")
+    compile("org.hsqldb:hsqldb:2.4.0")
     testCompile("org.mockito:mockito-core:1.+")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
