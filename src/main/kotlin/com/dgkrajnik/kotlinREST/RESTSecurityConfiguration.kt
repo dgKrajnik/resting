@@ -1,5 +1,6 @@
 package com.dgkrajnik.kotlinREST
 
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -26,6 +27,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
         http
+            .csrf().disable()
             .exceptionHandling()
             .authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
@@ -37,5 +39,15 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .failureHandler(SimpleUrlAuthenticationFailureHandler())
             .and()
                 .logout();
+    }
+
+    @Bean
+    fun customSuccessHandler(): RestAuthSuccessHandler {
+        return RestAuthSuccessHandler()
+    }
+
+    @Bean
+    fun customFailureHandler(): SimpleUrlAuthenticationFailureHandler {
+        return SimpleUrlAuthenticationFailureHandler()
     }
 }
