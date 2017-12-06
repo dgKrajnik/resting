@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.stereotype.Service
 import javax.inject.Inject
 import javax.ws.rs.GET
+import javax.ws.rs.Produces
 
 @SpringBootApplication
 class KotlinRestApplication
@@ -31,6 +32,9 @@ class SpringHelloController {
 
     @GetMapping("/service")
     fun helloService() = springHelloService.helloAsAService()
+
+    @GetMapping("/data")
+    fun helloData() = HelloData("Hello, Data!")
 }
 
 // Should definitely probably be in another file.
@@ -46,7 +50,12 @@ class JAXHelloResource {
 
     @GET
     @Path("/service")
-    fun jaxHelloService() = jaxHelloService.helloAsAService()
+    fun helloService() = jaxHelloService.helloAsAService()
+
+    @GET
+    @Path("/data")
+    @Produces("application/json")
+    fun helloData() = HelloData("Hello, Data!")
 }
 
 // Commented out because Spring MVC is nicer.
@@ -67,3 +76,5 @@ class HelloConfig : ResourceConfig() {
 class HelloService {
     fun helloAsAService() = "Hello, Service!"
 }
+
+data class HelloData(val message: String)

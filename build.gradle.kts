@@ -15,6 +15,7 @@ buildscript {
         classpath(kotlinModule("gradle-plugin", kotlin_version))
         classpath(kotlinModule("allopen", kotlin_version))
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+        classpath("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0")
     }
     
 }
@@ -37,6 +38,9 @@ dependencies {
     testCompile("junit", "junit", "4.12")
     compile("org.springframework.boot:spring-boot-starter-jersey")
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    testCompile("org.mockito:mockito-core:1.+")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
