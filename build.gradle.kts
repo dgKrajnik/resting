@@ -36,10 +36,10 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib-jdk8", kotlin_version))
     testCompile("junit", "junit", "4.12")
-    compile("org.springframework.boot:spring-boot-starter-jersey")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compile("javax.inject:javax.inject:1")
+    compile("org.springframework.boot:spring-boot-starter-security")
     testCompile("org.mockito:mockito-core:1.+")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
