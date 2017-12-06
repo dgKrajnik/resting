@@ -15,8 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner
 class HelloControllerUnitTest {
     @InjectMocks
     lateinit var helloController: SpringHelloController
-    @InjectMocks
-    lateinit var helloResource: JAXHelloResource
 
     @Mock
     lateinit var helloService: HelloService
@@ -29,13 +27,6 @@ class HelloControllerUnitTest {
     }
 
     @Test
-    fun testJAXHelloResource() {
-        val result = helloResource.helloString()
-        assertNotNull(result)
-        assertEquals(result, "Hello, JAX-RS!")
-    }
-
-    @Test
     fun testSpringHelloService() {
         doReturn("Hello, Service!").`when`(helloService).helloAsAService()
         val result = helloController.helloService()
@@ -44,23 +35,8 @@ class HelloControllerUnitTest {
     }
 
     @Test
-    fun testJAXHelloService() {
-        doReturn("Hello, Service!").`when`(helloService).helloAsAService()
-        val result = helloResource.helloService()
-        assertNotNull(result)
-        assertEquals("Hello, Service!", result)
-    }
-
-    @Test
     fun testSpringHelloDTO() {
         val result = helloController.helloData()
-        assertNotNull(result)
-        assertEquals(HelloData("Hello, Data!"), result)
-    }
-
-    @Test
-    fun testJAXHelloDTO() {
-        val result = helloResource.helloData()
         assertNotNull(result)
         assertEquals(HelloData("Hello, Data!"), result)
     }
