@@ -1,0 +1,3 @@
+rootProject.name = 'RESTTest'
+rootProject.buildFileName = 'build.gradle.kts'
+
