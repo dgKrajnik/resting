@@ -12,6 +12,8 @@ buildscript {
     
     dependencies {
         classpath(kotlinModule("gradle-plugin", kotlin_version))
+        classpath(kotlinModule("allopen", kotlin_version))
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
     }
     
 }
@@ -19,7 +21,7 @@ buildscript {
 apply {
     plugin("java")
     plugin("kotlin")
-    plugin("kotlin-plugin")
+    plugin("kotlin-spring")
     plugin("org.springframework.boot")
 }
 
@@ -32,8 +34,9 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib-jdk8", kotlin_version))
     testCompile("junit", "junit", "4.12")
-    compile('org.springframework.boot:spring-boot-starter-web')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile("org.springframework.boot:spring-boot-starter-jersey")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 configure<JavaPluginConvention> {
