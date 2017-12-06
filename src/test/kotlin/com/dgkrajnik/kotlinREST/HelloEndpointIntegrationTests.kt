@@ -15,13 +15,14 @@ import javax.inject.Inject
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class HelloEndpointIntegrationTests {
+    val BASE_PATH = "/hello"
     val mapper = ObjectMapper().registerModule(KotlinModule())
 	@Inject
 	lateinit var testRestTemplate: TestRestTemplate;
 
 	@Test
     fun testHelloController() {
-        val result = testRestTemplate.getForEntity("/hello/string", String::class.java)
+        val result = testRestTemplate.getForEntity("$BASE_PATH/string", String::class.java)
         assertNotNull(result)
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals("Hello, Spring!", result.body)
@@ -29,7 +30,7 @@ class HelloEndpointIntegrationTests {
 
     @Test
     fun testHelloService() {
-        val result = testRestTemplate.getForEntity("/hello/service", String::class.java)
+        val result = testRestTemplate.getForEntity("$BASE_PATH/service", String::class.java)
         assertNotNull(result)
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals("Hello, Service!", result.body)
@@ -37,7 +38,7 @@ class HelloEndpointIntegrationTests {
 
     @Test
     fun testHelloDTO() {
-        val result = testRestTemplate.getForEntity("/hello/data", HelloData::class.java)
+        val result = testRestTemplate.getForEntity("$BASE_PATH/data", HelloData::class.java)
         assertNotNull(result)
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals(HelloData("Hello, Data!"), result.body)

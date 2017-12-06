@@ -58,7 +58,15 @@ class JAXHelloResource {
     fun helloData() = HelloData("Hello, Data!")
 }
 
-// Commented out because Spring MVC is nicer.
+@Service
+class HelloService {
+    fun helloAsAService() = "Hello, Service!"
+}
+
+data class HelloData(val message: String)
+
+// Commented out because Spring MVC is nicer,
+// and the two can't live side by side.
 /*
 @Component
 class HelloConfig : ResourceConfig() {
@@ -71,10 +79,3 @@ class HelloConfig : ResourceConfig() {
     }
 }
 */
-
-@Service
-class HelloService {
-    fun helloAsAService() = "Hello, Service!"
-}
-
-data class HelloData(val message: String)
