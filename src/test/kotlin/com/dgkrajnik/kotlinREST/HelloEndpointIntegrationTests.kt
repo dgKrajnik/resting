@@ -12,13 +12,19 @@ import org.springframework.http.*
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
-import java.net.HttpCookie
-import java.net.URI
 import javax.inject.Inject
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class HelloEndpointIntegrationTests {
+    /*
+    @Before
+    fun initDB() {
+        val c: Connection = DriverManager.getConnection("jdbc:hsqldb:file:dbs/testDB", "SA", "")
+    }
+    */
+
     val BASE_PATH = "/hello"
     val mapper = ObjectMapper().registerModule(KotlinModule())
 	@Inject
@@ -42,41 +48,9 @@ class HelloEndpointIntegrationTests {
 
     @Test
     fun testHelloDTO() {
-        // Login and get any cookies we might need to maintain session.
-        var loginHeaders = HttpHeaders()
-        loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
-        var loginData: MultiValueMap<String, String> = LinkedMultiValueMap(mapOf(
-                "username" to listOf("steve"),
-                "password" to listOf("userpass")
-        ))
-        val loginRequest = HttpEntity(loginData, loginHeaders)
-        val loginResponse = testRestTemplate.postForEntity("/login", loginRequest, String::class.java)
-        assertNotNull(loginResponse)
-        assertEquals(HttpStatus.OK, loginResponse.statusCode)
-
-        // Parse the cookie headers.
-        val responseCookies: ArrayList<HttpCookie> = ArrayList()
-        for (cookieHeader in loginResponse.headers.get(HttpHeaders.SET_COOKIE) ?: listOf()) {
-            responseCookies.addAll(HttpCookie.parse(cookieHeader))
-        }
-        for (cookieHeader in loginResponse.headers.get(HttpHeaders.SET_COOKIE2) ?: listOf()) {
-            responseCookies.addAll(HttpCookie.parse(cookieHeader))
-        }
-
-        // Reconstruct the cookies into a COOKIE: header.
-        val cookieResendString = responseCookies.joinToString("; ")
-
-        // Construct a request that includes the cookie header.
-        val requestHeaders = HttpHeaders()
-        requestHeaders.add(HttpHeaders.COOKIE, cookieResendString)
-        val requestEntity: RequestEntity<String> = RequestEntity(
-                requestHeaders,
-                HttpMethod.GET,
-                URI("")
-        )
-
-        val result = testRestTemplate.exchange("$BASE_PATH/secureData", HttpMethod.GET, requestEntity, HelloData::class.java)
-        assertNotNull(result)
+        val result = testRestTemplate
+                .withBasicAuth("steve", "userpass")
+                .getForEntity("$BASE_PATH/secureData", HelloData::class.java)
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals(HelloData("Hello, Data!"), result.body)
     }
@@ -88,4 +62,67 @@ class HelloEndpointIntegrationTests {
         assertNotNull(result)
         assertEquals(HttpStatus.UNAUTHORIZED, result.statusCode)
     }
+
+    @Test
+    fun testOAuth() {
+        val loginResponse = oAuthLogin()
+        assertNotNull(loginResponse)
+        assertEquals(HttpStatus.OK, loginResponse.statusCode)
+    }
+
+    @Test
+    fun testOAuthFailure() {
+        val result = testRestTemplate.getForEntity("/oauth/token", String::class.java)
+        assertNotNull(result)
+        assertEquals(HttpStatus.UNAUTHORIZED, result.statusCode)
+    }
+
+    @Test
+    fun testHelloFailureOAuth() {
+        val result = testRestTemplate.getForEntity("$BASE_PATH/secureOAuthData", HelloData::class.java)
+        assertEquals(HttpStatus.UNAUTHORIZED, result.statusCode)
+    }
+
+    @Test
+    fun testHelloOAuth() {
+        val loginResponse = oAuthLogin()
+        assertNotNull(loginResponse)
+        assertEquals(HttpStatus.OK, loginResponse.statusCode)
+
+        val token = loginResponse.body.accessToken
+        val tokenHeaders = HttpHeaders()
+        tokenHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        tokenHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer $token")
+        val tokenRequest = HttpEntity(null, tokenHeaders)
+        val result = testRestTemplate.exchange(
+                "$BASE_PATH/secureOAuthData",
+                HttpMethod.GET,
+                tokenRequest,
+                HelloData::class.java
+        )
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals(HelloData("Hello, OAuth!"), result.body)
+    }
+
+    private fun oAuthLogin(): ResponseEntity<OAuthResponse> {
+        var loginHeaders = HttpHeaders()
+        loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        var loginData: MultiValueMap<String, String> = LinkedMultiValueMap(mapOf(
+                "username" to listOf("neev"),
+                "password" to listOf("otheruserpass"),
+                "grant_type" to listOf("password")
+        ))
+        val loginRequest = HttpEntity(loginData, loginHeaders)
+        val loginResponse = testRestTemplate
+                .withBasicAuth("normalClient", "spookysecret")
+                .postForEntity("/oauth/token", loginRequest, OAuthResponse::class.java)
+        return loginResponse
+    }
+
+    data class OAuthResponse(
+            @JsonProperty("access_token") val accessToken: String,
+            @JsonProperty("token_type") val tokenType: String,
+            @JsonProperty("expires_in") val expiresIn: Int,
+            @JsonProperty("scope") val scope: String
+    )
 }
