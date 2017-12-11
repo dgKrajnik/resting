@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler
 import org.springframework.security.oauth2.provider.token.TokenStore
@@ -24,10 +25,10 @@ import javax.sql.DataSource
 @EnableAuthorizationServer
 class AuthorizationServerConfiguration: AuthorizationServerConfigurerAdapter() {
     @Inject
-    lateinit var tokenStore: TokenStore
+    lateinit var dataSource: DataSource
 
     @Inject
-    lateinit var dataSource: DataSource
+    lateinit var tokenStore: TokenStore
 
     @Inject
     @Named("authenticationManagerBean")
@@ -47,6 +48,10 @@ class AuthorizationServerConfiguration: AuthorizationServerConfigurerAdapter() {
     override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
         endpoints.tokenStore(tokenStore).userApprovalHandler(userApprovalHandler)
                 .authenticationManager(authenticationManager)
+    }
+
+    override fun configure(oAuthServer: AuthorizationServerSecurityConfigurer) {
+        oAuthServer.checkTokenAccess("permitAll()");
     }
 
     @Bean

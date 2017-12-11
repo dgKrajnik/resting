@@ -10,6 +10,7 @@ import org.springframework.core.env.Environment
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration
@@ -24,6 +25,8 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import javax.inject.Inject
 import javax.sql.DataSource
 
@@ -31,18 +34,19 @@ import javax.sql.DataSource
 @EnableResourceServer
 class WebSecurityConfig: ResourceServerConfigurerAdapter() {
     @Inject
-    lateinit var dataSource: DataSource
+    lateinit private var authenticationManagerBean: AuthenticationManager
 
-    fun dataSource(): DataSource {
-        val dataSource = EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.HSQL)
-                .build()
-        return dataSource as DataSource
-    }
-
+    @Primary
     @Bean
-    fun tokenStore(): TokenStore {
-        return JdbcTokenStore(dataSource)
+    fun tokenService(): RemoteTokenServices {
+        val tokenService = RemoteTokenServices()
+        // Note that, because the server port is set *after*
+        // the beans get constructed, you can't just use local.server.port.
+        tokenService.setCheckTokenEndpointUrl(
+                "http://localhost:8080/oauth/check_token")
+        tokenService.setClientId("normalClient")
+        tokenService.setClientSecret("spookysecret")
+        return tokenService
     }
 
     override fun configure(http: HttpSecurity) {
@@ -55,6 +59,12 @@ class WebSecurityConfig: ResourceServerConfigurerAdapter() {
                     .antMatchers("/hello/string").permitAll()
                     .antMatchers("/hello/service").permitAll()
             .and()
+                .authorizeRequests()
+                    .antMatchers("/hello/secureData").authenticated()
+
+
+        http.addFilterBefore(BasicAuthenticationFilter(authenticationManagerBean),
+                UsernamePasswordAuthenticationFilter::class.java)
     }
 }
 
@@ -66,27 +76,5 @@ class MethodSecurityConfig: GlobalMethodSecurityConfiguration() {
 
     override fun createExpressionHandler(): MethodSecurityExpressionHandler {
         return OAuth2MethodSecurityExpressionHandler()
-    }
-}
-
-@Configuration
-@Order(100)
-@EnableWebSecurity
-class BasicResourceSecurity: WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
-        http
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(Http401AuthenticationEntryPoint("Bearer realm=\"webrealm\""))
-                .and()
-                .authorizeRequests()
-                .antMatchers("/hello/secureData").authenticated()
-                .and()
-                .httpBasic()
-    }
-
-    @Inject
-    fun globalUserDetails(auth: AuthenticationManagerBuilder) {
-        auth.inMemoryAuthentication()
-                .withUser("steve").password("userpass").roles("USER")
     }
 }

@@ -16,7 +16,7 @@ import javax.inject.Inject
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class HelloEndpointIntegrationTests {
     /*
     @Before

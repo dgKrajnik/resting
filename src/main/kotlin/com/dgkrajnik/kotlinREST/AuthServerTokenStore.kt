@@ -11,6 +11,8 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.jdbc.datasource.init.DataSourceInitializer
 import org.springframework.jdbc.datasource.init.DatabasePopulator
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
+import org.springframework.security.oauth2.provider.token.TokenStore
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore
 import javax.sql.DataSource
 
 @Configuration
@@ -37,5 +39,10 @@ class AuthServerTokenStore {
                 .setType(EmbeddedDatabaseType.HSQL)
                 .addScript("schema.sql").build()
         return dataSource as DataSource
+    }
+
+    @Bean
+    fun tokenStore(): TokenStore {
+        return JdbcTokenStore(dataSource())
     }
 }
