@@ -1,0 +1,1 @@
+This marks the end of security exercises; the implicit flow is also already implemented by Spring, but is pretty difficult to test in code.
