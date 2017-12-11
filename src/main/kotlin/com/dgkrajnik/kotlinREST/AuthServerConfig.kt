@@ -1,10 +1,8 @@
 package com.dgkrajnik.kotlinREST
 
-import org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer
@@ -19,7 +17,7 @@ import javax.sql.DataSource
 
 @Configuration
 @EnableAuthorizationServer
-class AuthorizationServerConfiguration: AuthorizationServerConfigurerAdapter() {
+class AuthorizationServerConfiguration : AuthorizationServerConfigurerAdapter() {
     @Inject
     lateinit var dataSource: DataSource
 
@@ -35,10 +33,10 @@ class AuthorizationServerConfiguration: AuthorizationServerConfigurerAdapter() {
 
     override fun configure(clients: ClientDetailsServiceConfigurer) {
         clients.inMemory()
-            .withClient("normalClient")
-            .authorizedGrantTypes("password", "implicit")
-            .scopes("read")
-            .secret("spookysecret")
+                .withClient("normalClient")
+                .authorizedGrantTypes("password", "implicit")
+                .scopes("read")
+                .secret("spookysecret")
     }
 
     override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {

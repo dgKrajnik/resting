@@ -1,38 +1,25 @@
 package com.dgkrajnik.kotlinREST
 
-import com.sun.org.apache.xerces.internal.parsers.SecurityConfiguration
 import org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.core.annotation.Order
-import org.springframework.core.env.Environment
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
-import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices
-import org.springframework.security.oauth2.provider.token.TokenStore
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import javax.inject.Inject
-import javax.sql.DataSource
 
 @Configuration
 @EnableResourceServer
-class WebSecurityConfig: ResourceServerConfigurerAdapter() {
+class WebSecurityConfig : ResourceServerConfigurerAdapter() {
     @Inject
     lateinit private var authenticationManagerBean: AuthenticationManager
 
@@ -50,6 +37,7 @@ class WebSecurityConfig: ResourceServerConfigurerAdapter() {
     }
 
     override fun configure(http: HttpSecurity) {
+        //@formatter:off
         http
                 .csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(Http401AuthenticationEntryPoint("Bearer realm=\"webrealm\""))
@@ -61,6 +49,7 @@ class WebSecurityConfig: ResourceServerConfigurerAdapter() {
             .and()
                 .authorizeRequests()
                     .antMatchers("/hello/secureData").authenticated()
+        //@formatter:on
 
 
         http.addFilterBefore(BasicAuthenticationFilter(authenticationManagerBean),
@@ -70,7 +59,7 @@ class WebSecurityConfig: ResourceServerConfigurerAdapter() {
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-class MethodSecurityConfig: GlobalMethodSecurityConfiguration() {
+class MethodSecurityConfig : GlobalMethodSecurityConfiguration() {
     //@Inject
     lateinit private var securityConfig: AuthorizationServerSecurityConfiguration
 

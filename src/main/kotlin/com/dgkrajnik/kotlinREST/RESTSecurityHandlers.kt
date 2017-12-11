@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse
 // Standard auth entry point.
 @Component
 class RestAuthenticationEntryPoint : AuthenticationEntryPoint {
-    override fun commence (
+    override fun commence(
             request: HttpServletRequest,
             response: HttpServletResponse,
             authException: AuthenticationException) {
@@ -28,7 +28,7 @@ class RestAuthenticationEntryPoint : AuthenticationEntryPoint {
 class RestAuthSuccessHandler : SimpleUrlAuthenticationSuccessHandler() {
     private var requestCache: RequestCache = HttpSessionRequestCache()
 
-    override fun onAuthenticationSuccess (
+    override fun onAuthenticationSuccess(
             request: HttpServletRequest,
             response: HttpServletResponse,
             authentication: Authentication) {

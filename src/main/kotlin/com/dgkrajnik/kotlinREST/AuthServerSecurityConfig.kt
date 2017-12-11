@@ -1,12 +1,10 @@
 package com.dgkrajnik.kotlinREST
 
-import org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.oauth2.provider.ClientDetailsService
@@ -20,10 +18,7 @@ import javax.inject.Inject
 @Configuration
 @Order(101)
 @EnableWebSecurity
-class AuthorizationServerSecurityConfiguration: WebSecurityConfigurerAdapter() {
-    @Inject
-    private lateinit var clientDetailsService: ClientDetailsService
-
+class AuthorizationServerSecurityConfiguration : WebSecurityConfigurerAdapter() {
     @Bean
     override fun authenticationManagerBean(): AuthenticationManager {
         return super.authenticationManagerBean()
@@ -41,7 +36,7 @@ class AuthorizationServerSecurityConfiguration: WebSecurityConfigurerAdapter() {
 
     @Bean
     @Inject
-    fun userApprovalHandler(tokenStore: TokenStore): TokenStoreUserApprovalHandler {
+    fun userApprovalHandler(tokenStore: TokenStore, clientDetailsService: ClientDetailsService): TokenStoreUserApprovalHandler {
         val handler = TokenStoreUserApprovalHandler()
         handler.setTokenStore(tokenStore)
         handler.setRequestFactory(DefaultOAuth2RequestFactory(clientDetailsService))
@@ -49,12 +44,9 @@ class AuthorizationServerSecurityConfiguration: WebSecurityConfigurerAdapter() {
         return handler
     }
 
-    @Inject
-    lateinit private var tokenStore: TokenStore
-
     @Bean
     @Inject
-    fun approvalStore(): ApprovalStore {
+    fun approvalStore(tokenStore: TokenStore): ApprovalStore {
         val store = TokenApprovalStore()
         store.setTokenStore(tokenStore)
         return store

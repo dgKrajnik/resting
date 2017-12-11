@@ -3,9 +3,7 @@ package com.dgkrajnik.kotlinREST
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.annotation.Order
 import org.springframework.core.io.Resource
-import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.jdbc.datasource.init.DataSourceInitializer
