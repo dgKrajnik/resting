@@ -38,6 +38,8 @@ dependencies {
     testCompile("junit", "junit", "4.12")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compile("com.fasterxml.jackson.core:jackson-databind")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compile("javax.inject:javax.inject:1")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework:spring-jdbc")

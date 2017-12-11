@@ -104,6 +104,14 @@ class HelloEndpointIntegrationTests {
         assertEquals(HelloData("Hello, OAuth!"), result.body)
     }
 
+    @Test
+    fun testErrorHandling() {
+        val error = testRestTemplate.getForEntity("$BASE_PATH/throwAnError", ApiError::class.java)
+        assertEquals(HttpStatus.BAD_REQUEST, error.statusCode)
+        assertEquals("Malformed JSON Request", error.body.message)
+        assertEquals("Wink wonk", error.body.debugMessage)
+    }
+
     private fun oAuthLogin(): ResponseEntity<OAuthResponse> {
         var loginHeaders = HttpHeaders()
         loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
