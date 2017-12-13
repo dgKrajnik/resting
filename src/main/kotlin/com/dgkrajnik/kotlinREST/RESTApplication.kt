@@ -2,6 +2,8 @@ package com.dgkrajnik.kotlinREST
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.http.HttpHeaders
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
 import java.text.SimpleDateFormat
 import javax.inject.Inject
+import javax.servlet.http.HttpServletRequest
 
 @SpringBootApplication
 class KotlinRestApplication
@@ -31,6 +34,7 @@ class SpringHelloController {
     @Inject //Inject is hip and modern.
     lateinit var springHelloService: HelloService
 
+    val logger: Logger = LoggerFactory.getLogger("HelloLogger")
 
     @GetMapping("/string")
     fun helloString() = "Hello, Spring!"
@@ -39,10 +43,16 @@ class SpringHelloController {
     fun helloService() = springHelloService.helloAsAService()
 
     @GetMapping("/secureData")
-    fun helloData() = HelloData("Hello, Data!")
+    fun helloData(): HelloData {
+        logger.info("User Accessed secureData.")
+        return HelloData("Hello, Data!")
+    }
 
     @GetMapping("/secureOAuthData")
-    fun helloOAuthData() = HelloData("Hello, OAuth!")
+    fun helloOAuthData(): HelloData {
+        logger.info("User accessed secureOAuthData.")
+        return HelloData("Hello, OAuth!")
+    }
 
     @GetMapping("/throwAnError")
     fun badBoy(): Nothing = throw HttpMessageNotReadableException("Wink wonk")
@@ -67,6 +77,12 @@ class SpringHelloController {
         } else {
             return ResponseEntity(object{val jsonshim: String = "I got $requestParam"}, headers, HttpStatus.OK)
         }
+    }
+
+    @GetMapping("/loggedEndpoint", produces=["text/html"])
+    fun iAmWatchingYou(request: HttpServletRequest): String {
+        logger.info("User ${request.remoteAddr} accessed ${request.requestURL}.")
+        return "<div style=\"position:absolute; top:50%; text-align:center; width:100%; transform:translateY(-50%);\">I'm watching you.</div>"
     }
 }
 

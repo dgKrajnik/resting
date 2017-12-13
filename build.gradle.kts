@@ -35,18 +35,18 @@ repositories {
 
 dependencies {
     compile(kotlinModule("stdlib-jdk8", kotlin_version))
-    testCompile("junit", "junit", "4.12")
+    compile("org.springframework:spring-jdbc")
+    compile("org.springframework.security.oauth:spring-security-oauth2")
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-security")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin")
     compile("com.fasterxml.jackson.core:jackson-databind")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compile("javax.inject:javax.inject:1")
-    compile("org.springframework.boot:spring-boot-starter-security")
-    compile("org.springframework:spring-jdbc")
-    compile("org.springframework.security.oauth:spring-security-oauth2")
     compile("org.hsqldb:hsqldb:2.4.0")
-    testCompile("org.mockito:mockito-core:1.+")
     testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("org.mockito:mockito-core:1.+")
+    testCompile("junit", "junit", "4.12")
 }
 
 configure<JavaPluginConvention> {
