@@ -112,6 +112,28 @@ class HelloEndpointIntegrationTests {
         assertEquals("Wink wonk", error.body.debugMessage)
     }
 
+    @Test
+    fun testCustomErrorHandling() {
+        val error = testRestTemplate.getForEntity("$BASE_PATH/badRequest", ApiError::class.java)
+        assertEquals(HttpStatus.NOT_FOUND, error.statusCode)
+        assertEquals("Entity Not Found", error.body.message)
+        assertEquals("Entity null != 22 not found.", error.body.debugMessage)
+    }
+
+    @Test
+    fun testCustomVerificationErrorHandling() {
+        var loginHeaders = HttpHeaders()
+        loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        var loginData: MultiValueMap<String, String> = LinkedMultiValueMap(mapOf(
+                "reqparam" to listOf("24")
+        ))
+        val loginRequest = HttpEntity(loginData, loginHeaders)
+        val error = testRestTemplate.postForEntity("$BASE_PATH/badPost", loginRequest, ApiError::class.java)
+        assertEquals(HttpStatus.BAD_REQUEST, error.statusCode)
+        assertEquals("Error in Request Data", error.body.message)
+        assertEquals(24, (error.body.subErrors?.get(0)?.returnErrorObject() as ApiValidationError).rejectedValue)
+    }
+
     private fun oAuthLogin(): ResponseEntity<OAuthResponse> {
         var loginHeaders = HttpHeaders()
         loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED

@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.text.SimpleDateFormat
 import javax.inject.Inject
 
@@ -44,6 +46,28 @@ class SpringHelloController {
 
     @GetMapping("/throwAnError")
     fun badBoy(): Nothing = throw HttpMessageNotReadableException("Wink wonk")
+
+    @GetMapping("/badRequest")
+    fun badReq(@RequestParam("reqparam", required=false) requestParam: Int?): ResponseEntity<Any> {
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+        if (requestParam != 22) {
+            throw EntityNotFoundException("Entity $requestParam != 22 not found.")
+        } else {
+            return ResponseEntity(object{val jsonshim: String = "Good Stuff"}, headers, HttpStatus.OK)
+        }
+    }
+
+    @PostMapping("/badPost")
+    fun badPost(@RequestParam("reqparam", required=false) requestParam: Int): ResponseEntity<Any>{
+        val headers = HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+        if (requestParam > 22) {
+            throw ValidationFailedException("request", "reqparam", requestParam, "Value must be <= 22")
+        } else {
+            return ResponseEntity(object{val jsonshim: String = "I got $requestParam"}, headers, HttpStatus.OK)
+        }
+    }
 }
 
 @Service
