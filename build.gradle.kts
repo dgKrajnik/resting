@@ -5,7 +5,7 @@ group = "com.dgkrajnik"
 
 buildscript {
     var kotlin_version: String by extra
-    kotlin_version = "1.2.0"
+    kotlin_version = "1.2.10"
 
     repositories {
         mavenCentral()
@@ -39,6 +39,7 @@ dependencies {
     compile("org.springframework.security.oauth:spring-security-oauth2")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin")
     compile("com.fasterxml.jackson.core:jackson-databind")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
