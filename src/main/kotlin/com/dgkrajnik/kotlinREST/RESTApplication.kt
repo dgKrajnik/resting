@@ -5,7 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
+import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -13,7 +15,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
+import java.security.Principal
 import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 import javax.servlet.http.HttpServletRequest
 
@@ -27,12 +31,14 @@ fun main(args: Array<String>) {
     SpringApplication.run(KotlinRestApplication::class.java, *args)
 }
 
-// Should probably be in another file.
 @RestController
 @RequestMapping("hello")
 class SpringHelloController {
     @Inject //Inject is hip and modern.
-    lateinit var springHelloService: HelloService
+    private lateinit var springHelloService: HelloService
+
+    @Inject
+    private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
     val logger: Logger = LoggerFactory.getLogger("HelloLogger")
 
@@ -81,8 +87,15 @@ class SpringHelloController {
 
     @GetMapping("/loggedEndpoint", produces=["text/html"])
     fun iAmWatchingYou(request: HttpServletRequest): String {
+        // We can explicitly log something at a specific logging level like this.
         logger.info("User ${request.remoteAddr} accessed ${request.requestURL}.")
         return "<div style=\"position:absolute; top:50%; text-align:center; width:100%; transform:translateY(-50%);\">I'm watching you.</div>"
+    }
+
+    @GetMapping("/auditedEndpoint", produces=["text/html"])
+    fun heIsWatchingYou(request: HttpServletRequest, principal: Principal?): String {
+        applicationEventPublisher.publishEvent(AuditApplicationEvent(Date(), principal?.name ?: "anon", "AUDITED_ENDPOINT_ACCESS_AND_ALSO_THIS_SHOULD_BE_AN_ENUM", mapOf("No more" to "data")))
+        return """<div style="position:absolute; top:50%; text-align:center; width:100%; transform:translateY(-50%);">Ḩ̥̭͚͚̼̣̻̂̈̊͛ͫ̽͛̇̏͠Ȩ͓̭̭̱̮͕̐͑ͦ͛͐ͤͩ ̡̩͉̹̯̹̅̇̔į͈̟̰̫̓ͤ̒̊̅̀s̲ͫ͆̄̑ͨ̓͂ ̡̰̋͊́̎̅̐̇͟ͅŵ̭̲̣͉̺ͫͩ͘ą͛̈́͒̂͑͞҉͕͇̟͔̤t̲̳̰͐͆̈́͛͋ͭ͊͒̔c̶͇ͭͥ̆̂͊ͤ̿̋ḧ̗̰̯ͪͪ̀ͩ͑̐͞ͅi̵͇̫̰͗̒͜nͯ̉͋͞͏̲̙͎̠̹̘̦͢g̰̻͈̻̙̰͇͎̓̄̔́̓̔ͫ̔ ̡͉̜̞̟̉͛̓͑̈ͮ̒͢ȳ̢̩͚̼͓̤̐͛̎̈́͛ͨ̊o̯̹͈̟̻͚͒̍ͯͭͪ̂̏ͭͅu̧͈̤̟̟͉̝̟͐̔̅̿̓̇̓̚</div>"""
     }
 }
 
