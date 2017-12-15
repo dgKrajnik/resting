@@ -45,6 +45,8 @@ dependencies {
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compile("javax.inject:javax.inject:1")
     compile("org.hsqldb:hsqldb:2.4.0")
+    compile("io.springfox:springfox-swagger2:2.7.0")
+    compile("io.springfox:springfox-swagger-ui:2.7.0")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("org.mockito:mockito-core:1.+")
     testCompile("junit", "junit", "4.12")

@@ -17,51 +17,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-class HelloEndpointIntegrationTests {
-    /*
-    @Before
-    fun initDB() {
-        val c: Connection = DriverManager.getConnection("jdbc:hsqldb:file:dbs/testDB", "SA", "")
-    }
-    */
-
+class HelloOAuthEndpointIntegrationTests {
     val BASE_PATH = "/hello"
     val mapper = ObjectMapper().registerModule(KotlinModule())
 	@Inject
 	lateinit var testRestTemplate: TestRestTemplate
-
-	@Test
-    fun testHelloController() {
-        val result = testRestTemplate.getForEntity("$BASE_PATH/string", String::class.java)
-        assertNotNull(result)
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals("Hello, Spring!", result.body)
-    }
-
-    @Test
-    fun testHelloService() {
-        val result = testRestTemplate.getForEntity("$BASE_PATH/service", String::class.java)
-        assertNotNull(result)
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals("Hello, Service!", result.body)
-    }
-
-    @Test
-    fun testHelloDTO() {
-        val result = testRestTemplate
-                .withBasicAuth("steve", "userpass")
-                .getForEntity("$BASE_PATH/secureData", HelloData::class.java)
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals(HelloData("Hello, Data!"), result.body)
-    }
-
-    @Test
-    fun testHelloDTOFailure() {
-        val authTestRestTemplate = testRestTemplate.withBasicAuth("steve", "wrongpass")
-        val result = authTestRestTemplate.getForEntity("$BASE_PATH/secureData", HelloData::class.java)
-        assertNotNull(result)
-        assertEquals(HttpStatus.UNAUTHORIZED, result.statusCode)
-    }
 
     @Test
     fun testOAuth() {
@@ -102,36 +62,6 @@ class HelloEndpointIntegrationTests {
         )
         assertEquals(HttpStatus.OK, result.statusCode)
         assertEquals(HelloData("Hello, OAuth!"), result.body)
-    }
-
-    @Test
-    fun testErrorHandling() {
-        val error = testRestTemplate.getForEntity("$BASE_PATH/throwAnError", ApiError::class.java)
-        assertEquals(HttpStatus.BAD_REQUEST, error.statusCode)
-        assertEquals("Malformed JSON Request", error.body.message)
-        assertEquals("Wink wonk", error.body.debugMessage)
-    }
-
-    @Test
-    fun testCustomErrorHandling() {
-        val error = testRestTemplate.getForEntity("$BASE_PATH/badRequest", ApiError::class.java)
-        assertEquals(HttpStatus.NOT_FOUND, error.statusCode)
-        assertEquals("Entity Not Found", error.body.message)
-        assertEquals("Entity null != 22 not found.", error.body.debugMessage)
-    }
-
-    @Test
-    fun testCustomVerificationErrorHandling() {
-        var loginHeaders = HttpHeaders()
-        loginHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
-        var loginData: MultiValueMap<String, String> = LinkedMultiValueMap(mapOf(
-                "reqparam" to listOf("24")
-        ))
-        val loginRequest = HttpEntity(loginData, loginHeaders)
-        val error = testRestTemplate.postForEntity("$BASE_PATH/badPost", loginRequest, ApiError::class.java)
-        assertEquals(HttpStatus.BAD_REQUEST, error.statusCode)
-        assertEquals("Error in Request Data", error.body.message)
-        assertEquals(24, (error.body.subErrors?.get(0)?.returnErrorObject() as ApiValidationError).rejectedValue)
     }
 
     private fun oAuthLogin(): ResponseEntity<OAuthResponse> {
