@@ -64,24 +64,24 @@ class SpringHelloController {
     fun badBoy(): Nothing = throw HttpMessageNotReadableException("Wink wonk")
 
     @GetMapping("/badRequest")
-    fun badReq(@RequestParam("reqparam", required=false) requestParam: Int?): ResponseEntity<Any> {
+    fun badReq(@RequestParam("reqparam", required=false) requestParam: Int?): ResponseEntity<ShimData> {
         val headers = HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
         if (requestParam != 22) {
             throw EntityNotFoundException("Entity $requestParam != 22 not found.")
         } else {
-            return ResponseEntity(object{val jsonshim: String = "Good Stuff"}, headers, HttpStatus.OK)
+            return ResponseEntity(ShimData("Good Stuff"), headers, HttpStatus.OK)
         }
     }
 
     @PostMapping("/badPost")
-    fun badPost(@RequestParam("reqparam", required=false) requestParam: Int): ResponseEntity<Any>{
+    fun badPost(@RequestParam("reqparam", required=false) requestParam: Int): ResponseEntity<ShimData> {
         val headers = HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
         if (requestParam > 22) {
             throw ValidationFailedException("request", "reqparam", requestParam, "Value must be <= 22")
         } else {
-            return ResponseEntity(object{val jsonshim: String = "I got $requestParam"}, headers, HttpStatus.OK)
+            return ResponseEntity(ShimData("I got $requestParam"), headers, HttpStatus.OK)
         }
     }
 
@@ -105,3 +105,4 @@ class HelloService {
 }
 
 data class HelloData(val message: String)
+data class ShimData(val jsonshim: String)
